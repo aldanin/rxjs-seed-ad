@@ -3,51 +3,76 @@ import Rx from 'rxjs/Rx';
 
 console.log('Up and running..');
 
-const btn = $('#btn');
+const startBtn = $('#start');
+const stopBtn = $('#stop');
 
 
-const btnStream$ = Rx.Observable.fromEvent(btn, 'click');
+const Observable = Rx.Observable;
 
-btnStream$.subscribe(
-  (event) => console.log('Clicked'),
-  (err) => console.log(`Error occurred ${err}`),
-  () => console.log('Completed')
-);
+const start$ = Observable.fromEvent(startBtn, 'click');
 
 
-const getUser = (username) => {
-  return $.ajax({
-    url: `https://api.github.com/users/${username}`,
-    dataType: 'jsonp'
-  }).promise();
-};
+// switchMapTo
+
+// const startInterval$ = start$
+//   .switchMapTo(interval$)
+//   .subscribe((x)=> console.log(x));
 
 
-// const inputSource$ = Rx.Observable.fromEvent($('#input'), 'keyup');
+// switchMapTo / scan, startWith
+
+const stop$ = Observable.fromEvent(stopBtn, 'click');
+const interval$ = Observable.interval(1000);
+
+const intervalThatStops$ = interval$
+  .takeUntil(stop$);
+
+const data = {count:0};
+
+const inc = acc => ({count: acc.count + 1});
+
+  start$
+  .switchMapTo(intervalThatStops$)
+  .startWith(data)
+  .scan(inc)
+  .subscribe((x)=> console.log(x));
+
+
+// const btnStream$ = Rx.Observable.fromEvent(btn, 'click');
+
+// simple Observable / Observer example
+
+// btnStream$.subscribe(
+//   (event) => console.log('Clicked'),
+//   (err) => console.log(`Error occurred ${err}`),
+//   () => console.log('Completed')
+// );
+
+// switchMap Example 1
+
+// const getUser = (username) => {
+//   return $.ajax({
+//     url: `https://api.github.com/users/${username}`,
+//     dataType: 'jsonp'
+//   }).promise();
+// };
+
+
+// const inputSource$ = Rx.Observable.fromEvent($('#input'), 'keyup')
+//   .map(e => e.target.value)
+//   .switchMap(v => {
+//     return Rx.Observable.fromPromise(getUser(v));
+//   });
 //
-// inputSource$.subscribe(e => {
-//   Rx.Observable.fromPromise(getUser(e.target.value))
-//     .subscribe(x => {
-//       // console.log(x);
-//       $('#name').text(x.data.name);
-//       $('#blog').text(x.data.blog);
-//       $('#avatar').attr('src', x.data.avatar_url);
-//     });
+// inputSource$.subscribe(x => {
+//   // console.log(x);
+//   $('#name').text(x.data.name);
+//   $('#blog').text(x.data.blog);
+//   $('#avatar').attr('src', x.data.avatar_url);
 // });
 
-const inputSource$ = Rx.Observable.fromEvent($('#input'), 'keyup')
-  .map(e => e.target.value)
-  .switchMap(v => {
-    return Rx.Observable.fromPromise(getUser(v));
-  });
 
-inputSource$.subscribe(x => {
-  // console.log(x);
-  $('#name').text(x.data.name);
-  $('#blog').text(x.data.blog);
-  $('#avatar').attr('src', x.data.avatar_url);
-});
-
+// Concat example
 
 // const source1$ = Rx.Observable.range(0, 5).map(v => `Source1: ${v}`);
 // const source2$ = Rx.Observable.range(6, 5).map(v => `Source2: ${v}`);
@@ -56,9 +81,12 @@ inputSource$.subscribe(x => {
 //   .subscribe(x => console.log(x));
 
 
-Rx.Observable.of('Hello')
-  .mergeMap(v => {
-    return Rx.Observable.of(v + ' Everyone');
-  })
-  .subscribe(x => console.log(x));
+
+// mergeMap example
+
+// Rx.Observable.of('Hello')
+//   .mergeMap(v => {
+//     return Rx.Observable.of(v + ' Everyone');
+//   })
+//   .subscribe(x => console.log(x));
 
