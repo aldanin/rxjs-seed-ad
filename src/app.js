@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import Rx from 'rxjs/Rx';
+// import {switchMap} from 'rxjs/operators'
 
 console.log('Up and running..');
 
@@ -10,8 +11,24 @@ const stopBtn = $('#stop');
 const Observable = Rx.Observable;
 
 const start$ = Observable.fromEvent(startBtn, 'click');
+const stop$ = Observable.fromEvent(stopBtn, 'click');
+const interval$ = Observable.interval(1000);
+
+const observable$ = start$.map(event => {
+    return interval$;
+});
+
+observable$.mergeAll().subscribe(num => console.log(num));
 
 
+// start$
+//     .switchMap( value1 =>
+//         Observable.interval(1000).map(val=>value1)
+//     )
+//     .subscribe(value=>console.log(value))
+
+// start$
+//     .map(event=>Observable.interval(1000))
 // switchMapTo
 
 // const startInterval$ = start$
@@ -22,20 +39,19 @@ const start$ = Observable.fromEvent(startBtn, 'click');
 // switchMapTo / scan, startWith
 
 const stop$ = Observable.fromEvent(stopBtn, 'click');
-const interval$ = Observable.interval(1000);
 
 const intervalThatStops$ = interval$
   .takeUntil(stop$);
 
 const data = {count:0};
 
-const inc = acc => ({count: acc.count + 1});
-
-  start$
-  .switchMapTo(intervalThatStops$)
-  .startWith(data)
-  .scan(inc)
-  .subscribe((x)=> console.log(x));
+// const inc = acc => ({count: acc.count + 1});
+//
+//   start$
+//   .switchMapTo(intervalThatStops$)
+//   .startWith(data)
+//   .scan(inc)
+//   .subscribe((x)=> console.log(x));
 
 
 // const btnStream$ = Rx.Observable.fromEvent(btn, 'click');
